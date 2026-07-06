@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aplikasi Interaktif Sains Tahun 5 - Haba</title>
+<style>
+body{
+    font-family: Arial, sans-serif;
+    margin:0;
+    background: linear-gradient(135deg,#ffecd2,#fcb69f);
+    color:#333;
+}
+header{
+    background:#ff7043;
+    color:white;
+    text-align:center;
+    padding:20px;
+}
+.container{
+    max-width:1000px;
+    margin:auto;
+    padding:20px;
+}
+.card{
+    background:white;
+    border-radius:15px;
+    padding:20px;
+    margin-bottom:20px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.15);
+}
+button{
+    background:#ff7043;
+    color:white;
+    border:none;
+    padding:12px 18px;
+    border-radius:10px;
+    cursor:pointer;
+    margin-top:10px;
+}
+button:hover{
+    background:#e64a19;
+}
+.option{
+    display:block;
+    background:#ffe0b2;
+    padding:10px;
+    margin:8px 0;
+    border-radius:8px;
+    cursor:pointer;
+}
+.option:hover{
+    background:#ffcc80;
+}
+.hidden{
+    display:none;
+}
+.badge{
+    display:inline-block;
+    background:gold;
+    color:black;
+    padding:8px 15px;
+    border-radius:20px;
+    margin:5px;
+    font-weight:bold;
+}
+.progress{
+    height:20px;
+    background:#ddd;
+    border-radius:10px;
+    overflow:hidden;
+}
+.progress-bar{
+    height:100%;
+    width:0%;
+    background:#4caf50;
+}
+.leaderboard li{
+    margin:5px 0;
+}
+img{
+    max-width:100%;
+    border-radius:10px;
+}
+footer{
+    text-align:center;
+    padding:15px;
+    background:#ff7043;
+    color:white;
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>🔥 Sains Tahun 5: Haba 🔥</h1>
+<p>Kuiz Interaktif + Penjejakan Prestasi + Lencana Ganjaran</p>
+</header>
+
+<div class="container">
+
+<div class="card">
+<h2>📘 Nota Ringkas</h2>
+<img src="https://images.unsplash.com/photo-1516117172878-fd2c41f4a759?q=80&w=1200&auto=format&fit=crop" alt="haba">
+<p>Haba ialah satu bentuk tenaga yang boleh dipindahkan daripada objek panas kepada objek sejuk.</p>
+</div>
+
+<div class="card">
+<h2>📊 Prestasi Murid</h2>
+<p>Skor Semasa: <span id="score">0</span>/20</p>
+<div class="progress">
+<div class="progress-bar" id="progressBar"></div>
+</div>
+<p id="badgeArea"></p>
+</div>
+
+<div class="card">
+<h2>🧠 Kuiz Interaktif</h2>
+<div id="quizContainer"></div>
+<button id="nextBtn">Soalan Seterusnya</button>
+</div>
+
+<div class="card">
+<h2>🏆 Papan Pendahulu</h2>
+<input type="text" id="studentName" placeholder="Nama Murid">
+<button onclick="saveScore()">Simpan Skor</button>
+<ul class="leaderboard" id="leaderboard"></ul>
+</div>
+
+<div class="card">
+<h2>🔗 Kongsi Aplikasi</h2>
+<p>Salin pautan aplikasi selepas dimuat naik ke GitHub Pages atau Netlify.</p>
+<button onclick="copyLink()">Copy Link</button>
+<p id="copied"></p>
+</div>
+
+</div>
+
+<footer>
+Dibangunkan dengan teknologi AI mesra pelbagai peranti 📱💻
+</footer>
+
+<script>
+const quizData = [
+{q:"Apakah maksud haba?", type:"mcq", options:["Tenaga cahaya","Tenaga bunyi","Tenaga yang dipindahkan","Tenaga elektrik"], answer:"Tenaga yang dipindahkan"},
+{q:"Haba bergerak dari objek panas ke objek sejuk.", type:"tf", options:["Betul","Salah"], answer:"Betul"},
+{q:"Contoh sumber haba ialah...", type:"mcq", options:["Matahari","Air","Batu","Tanah"], answer:"Matahari"},
+{q:"Ais akan mencair apabila menerima haba.", type:"tf", options:["Betul","Salah"], answer:"Betul"},
+{q:"Objek yang menyerap haba dengan cepat biasanya berwarna...", type:"mcq", options:["Putih","Hitam","Biru","Hijau"], answer:"Hitam"},
+{q:"Logam ialah pengalir haba yang baik.", type:"tf", options:["Betul","Salah"], answer:"Betul"},
+{q:"Apakah alat untuk mengukur suhu?", type:"mcq", options:["Jam","Termometer","Pembaris","Kompas"], answer:"Termometer"},
+{q:"Kayu ialah pengalir haba yang baik.", type:"tf", options:["Betul","Salah"], answer:"Salah"},
+{q:"Air panas boleh menyebabkan...", type:"mcq", options:["Pembekuan","Kecederaan melecur","Hujan","Tiada perubahan"], answer:"Kecederaan melecur"},
+{q:"Haba boleh dipindahkan melalui konduksi.", type:"tf", options:["Betul","Salah"], answer:"Betul"},
+{q:"Konduksi berlaku paling baik dalam...", type:"mcq", options:["Udara","Plastik","Logam","Kertas"], answer:"Logam"},
+{q:"Konveksi berlaku dalam cecair dan gas.", type:"tf", options:["Betul","Salah"], answer:"Betul"},
+{q:"Radiasi haba daripada matahari sampai ke bumi.", type:"tf", options:["Betul","Salah"], answer:"Betul"},
+{q:"Pakaian tebal membantu mengekalkan haba badan.", type:"tf", options:["Betul","Salah"], answer:"Betul"},
+{q:"Bahan penebat haba digunakan untuk...", type:"mcq", options:["Mempercepat haba","Menghalang haba","Menghasilkan cahaya","Menghasilkan bunyi"], answer:"Menghalang haba"},
+{q:"Botol termos membantu mengekalkan suhu air.", type:"tf", options:["Betul","Salah"], answer:"Betul"},
+{q:"Apakah contoh penebat haba?", type:"mcq", options:["Besi","Aluminium","Kayu","Tembaga"], answer:"Kayu"},
+{q:"Api menghasilkan haba.", type:"tf", options:["Betul","Salah"], answer:"Betul"},
+{q:"Sudu logam menjadi panas apabila dimasukkan dalam air panas.", type:"tf", options:["Betul","Salah"], answer:"Betul"},
+{q:"Padankan: Matahari → ?", type:"mcq", options:["Sumber haba","Penebat haba","Pengukur suhu","Bahan sejuk"], answer:"Sumber haba"}
+];
+
+let currentQuestion = 0;
+let score = 0;
+
+const quizContainer = document.getElementById("quizContainer");
+const nextBtn = document.getElementById("nextBtn");
+
+function loadQuestion(){
+    const current = quizData[currentQuestion];
+    quizContainer.innerHTML = `
+        <h3>Soalan ${currentQuestion+1}: ${current.q}</h3>
+        ${current.options.map(opt=>`<div class='option' onclick="selectAnswer('${opt}')">${opt}</div>`).join("")}
+    `;
+}
+
+function selectAnswer(selected){
+    const current = quizData[currentQuestion];
+    if(selected === current.answer){
+        score++;
+        alert("✅ Jawapan Betul!");
+    } else {
+        alert("❌ Jawapan Salah!");
+    }
+
+    document.getElementById("score").innerText = score;
+    document.getElementById("progressBar").style.width = ((currentQuestion+1)/20*100)+"%";
+
+    if(score >= 5){
+        document.getElementById("badgeArea").innerHTML = '<span class="badge">🥉 Lencana Gangsa</span>';
+    }
+    if(score >= 10){
+        document.getElementById("badgeArea").innerHTML += '<span class="badge">🥈 Lencana Perak</span>';
+    }
+    if(score >= 15){
+        document.getElementById("badgeArea").innerHTML += '<span class="badge">🥇 Lencana Emas</span>';
+    }
+}
+
+nextBtn.addEventListener("click", ()=>{
+    currentQuestion++;
+    if(currentQuestion < quizData.length){
+        loadQuestion();
+    } else {
+        quizContainer.innerHTML = `<h2>🎉 Kuiz Tamat!</h2><p>Skor anda: ${score}/20</p>`;
+        nextBtn.style.display = "none";
+    }
+});
+
+function saveScore(){
+    const name = document.getElementById("studentName").value || "Murid";
+    let scores = JSON.parse(localStorage.getItem("leaderboard")) || [];
+    scores.push({name, score});
+    scores.sort((a,b)=>b.score-a.score);
+    localStorage.setItem("leaderboard", JSON.stringify(scores.slice(0,10)));
+    displayLeaderboard();
+}
+
+function displayLeaderboard(){
+    let scores = JSON.parse(localStorage.getItem("leaderboard")) || [];
+    const board = document.getElementById("leaderboard");
+    board.innerHTML = scores.map(s=>`<li>🏅 ${s.name} - ${s.score} markah</li>`).join("");
+}
+
+function copyLink(){
+    navigator.clipboard.writeText(window.location.href);
+    document.getElementById("copied").innerText = "✅ Pautan berjaya disalin!";
+}
+
+displayLeaderboard();
+loadQuestion();
+</script>
+
+</body>
+</html>
